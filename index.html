@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DEMO - Scadenziario PRINCE Fire</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .card { border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .imminent { background-color: #fefce8 !important; border-left: 4px solid #facc15; }
+        .expired { background-color: #fef2f2 !important; border-left: 4px solid #ef4444; }
+        .filter-btn.active { border-color: #2563eb; background-color: #eff6ff; color: #1e40af; ring: 2px; --tw-ring-color: #3b82f6; }
+        .demo-badge { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-left: 8px; }
+    </style>
+</head>
+<body class="p-4 md:p-8 text-gray-800">
+
+    <!-- AVVISO MODALITÀ DEMO -->
+    <div class="mb-6 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700 card flex items-center justify-between">
+        <div class="flex items-center">
+            <i data-lucide="info" class="w-5 h-5 mr-3"></i>
+            <p class="text-sm font-medium"><strong>MODALITÀ DEMO:</strong> I dati sono solo illustrativi. Le modifiche non verranno salvate sul database reale.</p>
+        </div>
+        <a href="#" onclick="location.reload()" class="text-xs font-bold underline hover:no-underline">Reset Demo</a>
+    </div>
+
+    <!-- MODALE GESTIONE PRATICA -->
+    <div id="practiceModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-white w-full max-w-lg p-6 card max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">Gestione Pratica</h2>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+            </div>
+            <form id="practiceForm" class="space-y-4">
+                <input type="hidden" id="practiceId">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Codice PI</label>
+                        <input type="text" id="pi" placeholder="Es. 12345" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Scadenza</label>
+                        <input type="date" id="deadline" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Condominio / Società</label>
+                    <input type="text" id="entityName" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Attività</label>
+                    <input type="text" id="activity" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Indirizzo</label>
+                        <input type="text" id="address" class="w-full border border-gray-300 p-2 rounded-lg outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Comune</label>
+                        <input type="text" id="municipality" class="w-full border border-gray-300 p-2 rounded-lg outline-none">
+                    </div>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">Annulla</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Salva (Solo Sessione)</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-black text-gray-900 flex items-center">
+                <span class="bg-blue-600 p-2 rounded-lg mr-3 shadow-lg">
+                    <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
+                </span>
+                PRINCE <span class="text-blue-600 ml-2 italic">Fire</span>
+                <span class="demo-badge">Public Demo</span>
+            </h1>
+            <p class="text-gray-500 mt-1 font-medium italic">Anteprima Funzionale Online</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="exportToExcel()" class="flex items-center px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition">
+                <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta Excel
+            </button>
+        </div>
+    </header>
+
+    <!-- DASHBOARD FILTRI -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+        <button onclick="setFilter('all')" id="btn-all" class="filter-btn active bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totali</p><p id="count-all" class="text-2xl font-black text-gray-800">0</p></div>
+            <i data-lucide="list" class="text-gray-300"></i>
+        </button>
+        <button onclick="setFilter('expired')" id="btn-expired" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left"><p class="text-xs font-bold text-red-400 uppercase tracking-wider">Scadute</p><p id="count-expired" class="text-2xl font-black text-red-600">0</p></div>
+            <i data-lucide="alert-circle" class="text-red-200"></i>
+        </button>
+        <button onclick="setFilter('imminent')" id="btn-imminent" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left"><p class="text-xs font-bold text-yellow-500 uppercase tracking-wider">In Scadenza</p><p id="count-imminent" class="text-2xl font-black text-yellow-600">0</p></div>
+            <i data-lucide="clock" class="text-yellow-200"></i>
+        </button>
+        <button onclick="setFilter('valid')" id="btn-valid" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left"><p class="text-xs font-bold text-green-400 uppercase tracking-wider">Regolari</p><p id="count-valid" class="text-2xl font-black text-green-600">0</p></div>
+            <i data-lucide="check-circle" class="text-green-200"></i>
+        </button>
+    </div>
+
+    <!-- TABELLA -->
+    <div class="bg-white card overflow-hidden border border-gray-100 min-h-[400px]">
+        <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/30">
+            <div class="relative w-full md:w-96">
+                <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
+                <input type="text" id="searchBar" oninput="render()" placeholder="Cerca pratica nella demo..." class="w-full bg-white border border-gray-200 py-2.5 pl-10 pr-4 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            <button onclick="openModal()" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition flex items-center justify-center">
+                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Aggiungi Prova
+            </button>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+                <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-widest border-b border-gray-100">
+                    <tr>
+                        <th class="p-4">PI</th>
+                        <th class="p-4 text-center">Scadenza</th>
+                        <th class="p-4">Condominio/Ditta</th>
+                        <th class="p-4">Comune</th>
+                        <th class="p-4">Attività</th>
+                        <th class="p-4 text-right">Azioni</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody" class="divide-y divide-gray-100 italic">
+                    <!-- Dinamico -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // DATI DI ESEMPIO FISSI PER LA DEMO
+        const generateDemoData = () => {
+            const today = new Date();
+            const formatDate = (date) => date.toISOString().split('T')[0];
+            
+            const dateExpired = new Date(); dateExpired.setDate(today.getDate() - 15);
+            const dateImminent = new Date(); dateImminent.setDate(today.getDate() + 20);
+            const dateValid = new Date(); dateValid.setDate(today.getDate() + 180);
+
+            return [
+                { id: '1', pi: '88234', entityName: 'Condominio Belvedere', municipality: 'Milano', address: 'Via Roma 10', activity: 'Autorimessa', deadline: formatDate(dateExpired) },
+                { id: '2', pi: '99120', entityName: 'Hotel Splendid', municipality: 'Roma', address: 'Piazza Duomo 5', activity: 'Albergo', deadline: formatDate(dateImminent) },
+                { id: '3', pi: '44567', entityName: 'Supermercato Conad', municipality: 'Napoli', address: 'Via Vesuvio 100', activity: 'Locale commerciale', deadline: formatDate(dateValid) },
+                { id: '4', pi: '12003', entityName: 'Residenza i Giardini', municipality: 'Milano', address: 'Via Fiori 2', activity: 'Centrale Termica', deadline: formatDate(dateImminent) }
+            ];
+        };
+
+        let practices = generateDemoData();
+        let currentFilter = 'all';
+
+        const updateCounts = () => {
+            const now = new Date().setHours(0,0,0,0);
+            const counts = { all: practices.length, expired: 0, imminent: 0, valid: 0 };
+            practices.forEach(p => {
+                const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                if (diff < 0) counts.expired++;
+                else if (diff <= 60) counts.imminent++;
+                else counts.valid++;
+            });
+            document.getElementById('count-all').innerText = counts.all;
+            document.getElementById('count-expired').innerText = counts.expired;
+            document.getElementById('count-imminent').innerText = counts.imminent;
+            document.getElementById('count-valid').innerText = counts.valid;
+        };
+
+        window.setFilter = (type) => {
+            currentFilter = type;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(`btn-${type}`).classList.add('active');
+            render();
+        };
+
+        window.render = () => {
+            const term = document.getElementById('searchBar').value.toLowerCase();
+            const body = document.getElementById('tableBody');
+            const now = new Date().setHours(0,0,0,0);
+            
+            let filtered = practices.filter(p => 
+                (p.pi || "").toLowerCase().includes(term) || 
+                (p.entityName || "").toLowerCase().includes(term) ||
+                (p.municipality || "").toLowerCase().includes(term)
+            );
+
+            if (currentFilter !== 'all') {
+                filtered = filtered.filter(p => {
+                    const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                    if (currentFilter === 'expired') return diff < 0;
+                    if (currentFilter === 'imminent') return diff >= 0 && diff <= 60;
+                    if (currentFilter === 'valid') return diff > 60;
+                    return true;
+                });
+            }
+
+            filtered.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+            body.innerHTML = filtered.map(p => {
+                const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                let statusClass = diff < 0 ? "expired" : (diff <= 60 ? "imminent" : "");
+
+                return `<tr class="hover:bg-gray-50/50 transition-colors ${statusClass}">
+                    <td class="p-4 font-bold text-gray-900">#${p.pi}</td>
+                    <td class="p-4 font-bold text-center">${p.deadline.split('-').reverse().join('/')}</td>
+                    <td class="p-4 font-bold text-gray-800">${p.entityName}</td>
+                    <td class="p-4 text-xs font-semibold uppercase">${p.municipality}</td>
+                    <td class="p-4 text-xs font-bold text-blue-700 uppercase">${p.activity}</td>
+                    <td class="p-4 text-right">
+                        <button onclick="del('${p.id}')" class="text-red-400 hover:text-red-600 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+            updateCounts();
+        };
+
+        window.openModal = () => { document.getElementById('practiceForm').reset(); document.getElementById('practiceId').value = ''; document.getElementById('practiceModal').classList.remove('hidden'); };
+        window.closeModal = () => document.getElementById('practiceModal').classList.add('hidden');
+        window.del = (id) => { practices = practices.filter(x => x.id !== id); render(); };
+        
+        document.getElementById('practiceForm').onsubmit = (e) => {
+            e.preventDefault();
+            const newData = {
+                id: Date.now().toString(),
+                pi: document.getElementById('pi').value,
+                deadline: document.getElementById('deadline').value,
+                entityName: document.getElementById('entityName').value,
+                activity: document.getElementById('activity').value,
+                address: document.getElementById('address').value,
+                municipality: document.getElementById('municipality').value
+            };
+            practices.push(newData);
+            closeModal();
+            render();
+        };
+
+        window.exportToExcel = () => {
+            const headers = ["PI;Scadenza;Entita;Comune;Attivita"];
+            const rows = practices.map(p => `${p.pi};${p.deadline};${p.entityName};${p.municipality};${p.activity}`);
+            const csv = "sep=;\n" + headers.concat(rows).join("\n");
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "demo_export_fire.csv";
+            link.click();
+        };
+
+        render();
+    </script>
+</body>
+</html>
