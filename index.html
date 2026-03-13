@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DEMO - Scadenziario PRINCE Fire</title>
+    <!-- Tailwind CSS per lo stile -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
@@ -24,7 +27,7 @@
             <i data-lucide="info" class="w-5 h-5 mr-3"></i>
             <p class="text-sm font-medium"><strong>MODALITÀ DEMO:</strong> I dati sono solo illustrativi. Le modifiche non verranno salvate sul database reale.</p>
         </div>
-        <a href="#" onclick="location.reload()" class="text-xs font-bold underline hover:no-underline">Reset Demo</a>
+        <a href="#" onclick="window.location.reload()" class="text-xs font-bold underline hover:no-underline">Reset Demo</a>
     </div>
 
     <!-- MODALE GESTIONE PRATICA -->
@@ -32,7 +35,9 @@
         <div class="bg-white w-full max-w-lg p-6 card max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">Gestione Pratica</h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x"></i>
+                </button>
             </div>
             <form id="practiceForm" class="space-y-4">
                 <input type="hidden" id="practiceId">
@@ -112,21 +117,21 @@
 
     <!-- DASHBOARD FILTRI -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <button onclick="setFilter('all')" id="btn-all" class="filter-btn active bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+        <button onclick="setFilter('all')" id="btn-all" class="filter-btn active bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
             <div class="text-left"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totali</p><p id="count-all" class="text-2xl font-black text-gray-800">0</p></div>
-            <i data-lucide="list" class="text-gray-300"></i>
+            <i data-lucide="list" class="text-gray-300 group-hover:text-blue-400 transition-colors"></i>
         </button>
-        <button onclick="setFilter('expired')" id="btn-expired" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+        <button onclick="setFilter('expired')" id="btn-expired" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
             <div class="text-left"><p class="text-xs font-bold text-red-400 uppercase tracking-wider">Scadute</p><p id="count-expired" class="text-2xl font-black text-red-600">0</p></div>
-            <i data-lucide="alert-circle" class="text-red-200"></i>
+            <i data-lucide="alert-circle" class="text-red-200 group-hover:text-red-400 transition-colors"></i>
         </button>
-        <button onclick="setFilter('imminent')" id="btn-imminent" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+        <button onclick="setFilter('imminent')" id="btn-imminent" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
             <div class="text-left"><p class="text-xs font-bold text-yellow-500 uppercase tracking-wider">In Scadenza</p><p id="count-imminent" class="text-2xl font-black text-yellow-600">0</p></div>
-            <i data-lucide="clock" class="text-yellow-200"></i>
+            <i data-lucide="clock" class="text-yellow-200 group-hover:text-yellow-400 transition-colors"></i>
         </button>
-        <button onclick="setFilter('valid')" id="btn-valid" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+        <button onclick="setFilter('valid')" id="btn-valid" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
             <div class="text-left"><p class="text-xs font-bold text-green-400 uppercase tracking-wider">Regolari</p><p id="count-valid" class="text-2xl font-black text-green-600">0</p></div>
-            <i data-lucide="check-circle" class="text-green-200"></i>
+            <i data-lucide="check-circle" class="text-green-200 group-hover:text-green-400 transition-colors"></i>
         </button>
     </div>
 
@@ -143,7 +148,7 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm">
+            <table class="w-full text-left text-sm border-collapse">
                 <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-widest border-b border-gray-100">
                     <tr>
                         <th class="p-4">Cod. PI</th>
@@ -156,19 +161,18 @@
                     </tr>
                 </thead>
                 <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <!-- Dinamico -->
+                    <!-- Contenuto caricato via JS -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- FOOTER INFO LINK -->
     <footer class="mt-8 text-center text-gray-400 text-[10px] uppercase tracking-widest pb-10">
         <p>GitHub Pages Demo Mode | Versione 2.0 (Dati Locali)</p>
     </footer>
 
     <script>
-        // DATI DI ESEMPIO INITIALI
+        // DATI DI ESEMPIO
         const generateDemoData = () => {
             const today = new Date();
             const formatDate = (date) => date.toISOString().split('T')[0];
@@ -188,33 +192,41 @@
         let practices = generateDemoData();
         let currentFilter = 'all';
 
+        // AGGIORNA CONTATORI DASHBOARD
         const updateCounts = () => {
             const now = new Date().setHours(0,0,0,0);
             const counts = { all: practices.length, expired: 0, imminent: 0, valid: 0 };
+            
             practices.forEach(p => {
                 const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
                 if (diff < 0) counts.expired++;
                 else if (diff <= 60) counts.imminent++;
                 else counts.valid++;
             });
+            
             document.getElementById('count-all').innerText = counts.all;
             document.getElementById('count-expired').innerText = counts.expired;
             document.getElementById('count-imminent').innerText = counts.imminent;
             document.getElementById('count-valid').innerText = counts.valid;
         };
 
+        // GESTIONE FILTRI
         window.setFilter = (type) => {
             currentFilter = type;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            document.getElementById(`btn-${type}`).classList.add('active');
+            const activeBtn = document.getElementById(`btn-${type}`);
+            if(activeBtn) activeBtn.classList.add('active');
             render();
         };
 
+        // RENDERING TABELLA
         window.render = () => {
             const term = document.getElementById('searchBar').value.toLowerCase();
             const body = document.getElementById('tableBody');
             const now = new Date().setHours(0,0,0,0);
             
+            if (!body) return;
+
             let filtered = practices.filter(p => 
                 (p.pi || "").toLowerCase().includes(term) || 
                 (p.entityName || "").toLowerCase().includes(term) ||
@@ -236,43 +248,53 @@
             
             if (filtered.length === 0) {
                 body.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic">Nessuna pratica trovata</td></tr>`;
-                return;
+            } else {
+                body.innerHTML = filtered.map(p => {
+                    const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                    let statusClass = diff < 0 ? "expired" : (diff <= 60 ? "imminent" : "");
+
+                    return `<tr class="hover:bg-gray-50 transition-all ${statusClass}">
+                        <td class="p-4 font-black text-gray-900">#${p.pi || '---'}</td>
+                        <td class="p-4 font-black text-center text-gray-700">${p.deadline.split('-').reverse().join('/')}</td>
+                        <td class="p-4"><div class="font-bold text-gray-800 leading-tight">${p.entityName}</div></td>
+                        <td class="p-4">
+                            <div class="text-[11px] text-gray-500 font-medium">${p.address || ''}</div>
+                            <div class="text-[10px] text-blue-600 font-bold uppercase">${p.municipality || ''}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="text-[11px] font-bold text-gray-700 leading-tight">${p.adminName || '---'}</div>
+                            <div class="text-[10px] text-gray-400">${p.toEmail || ''}</div>
+                        </td>
+                        <td class="p-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase tracking-tighter">${p.activity || 'Attività'}</span></td>
+                        <td class="p-4 text-right px-6 space-x-1">
+                            <button onclick="editPratica('${p.id}')" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition" title="Modifica">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="delPratica('${p.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition" title="Elimina">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </td>
+                    </tr>`;
+                }).join('');
             }
 
-            body.innerHTML = filtered.map(p => {
-                const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
-                let statusClass = diff < 0 ? "expired" : (diff <= 60 ? "imminent" : "");
-
-                return `<tr class="hover:bg-gray-50/80 transition-all ${statusClass}">
-                    <td class="p-4 font-black text-gray-900">#${p.pi || '---'}</td>
-                    <td class="p-4 font-black text-center text-gray-700">${p.deadline.split('-').reverse().join('/')}</td>
-                    <td class="p-4">
-                        <div class="font-bold text-gray-800 leading-tight">${p.entityName}</div>
-                    </td>
-                    <td class="p-4">
-                        <div class="text-[11px] text-gray-500 font-medium">${p.address || ''}</div>
-                        <div class="text-[10px] text-blue-600 font-bold uppercase">${p.municipality || ''}</div>
-                    </td>
-                    <td class="p-4">
-                        <div class="text-[11px] font-bold text-gray-700 leading-tight">${p.adminName || '---'}</div>
-                        <div class="text-[10px] text-gray-400">${p.toEmail || ''}</div>
-                    </td>
-                    <td class="p-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase tracking-tighter">${p.activity || 'Attività'}</span></td>
-                    <td class="p-4 text-right px-6 space-x-1">
-                        <button onclick="editPratica('${p.id}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition" title="Modifica"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-                        <button onclick="del('${p.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition" title="Elimina"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-                    </td>
-                </tr>`;
-            }).join('');
-            lucide.createIcons();
+            // Forza il refresh delle icone se Lucide è caricato
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
             updateCounts();
         };
 
+        // GESTIONE MODALE
         window.openModal = () => { 
             document.getElementById('modalTitle').innerText = "Nuova Pratica";
             document.getElementById('practiceForm').reset(); 
             document.getElementById('practiceId').value = ''; 
             document.getElementById('practiceModal').classList.remove('hidden'); 
+        };
+
+        window.closeModal = () => {
+            document.getElementById('practiceModal').classList.add('hidden');
         };
 
         window.editPratica = (id) => {
@@ -289,18 +311,18 @@
             document.getElementById('adminName').value = p.adminName || '';
             document.getElementById('toEmail').value = p.toEmail || '';
             document.getElementById('practiceModal').classList.remove('hidden');
+            if (window.lucide) window.lucide.createIcons();
         };
 
-        window.closeModal = () => document.getElementById('practiceModal').classList.add('hidden');
-        
-        window.del = (id) => { 
+        window.delPratica = (id) => { 
             if(confirm("Sei sicuro di voler eliminare questa pratica dalla demo?")) {
                 practices = practices.filter(x => x.id !== id); 
                 render(); 
             }
         };
         
-        document.getElementById('practiceForm').onsubmit = (e) => {
+        // SALVATAGGIO
+        document.getElementById('practiceForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const id = document.getElementById('practiceId').value;
             const newData = {
@@ -317,15 +339,16 @@
 
             if (id) {
                 const index = practices.findIndex(x => x.id === id);
-                practices[index] = newData;
+                if (index !== -1) practices[index] = newData;
             } else {
                 practices.push(newData);
             }
             
             closeModal();
             render();
-        };
+        });
 
+        // ESPORTAZIONE
         window.exportToExcel = () => {
             const headers = ["PI;Scadenza;Entita;Indirizzo;Comune;Attivita;Amministratore;Email"];
             const rows = practices.map(p => `${p.pi};${p.deadline};${p.entityName};${p.address};${p.municipality};${p.activity};${p.adminName};${p.toEmail}`);
@@ -337,7 +360,10 @@
             link.click();
         };
 
-        render();
+        // INIZIALIZZAZIONE SICURA
+        document.addEventListener('DOMContentLoaded', () => {
+            render();
+        });
     </script>
 </body>
 </html>
