@@ -29,44 +29,63 @@
 
     <!-- MODALE GESTIONE PRATICA -->
     <div id="practiceModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white w-full max-w-lg p-6 card max-h-[90vh] overflow-y-auto">
+        <div class="bg-white w-full max-w-lg p-6 card max-h-[90vh] overflow-y-auto shadow-2xl">
             <div class="flex justify-between items-center mb-4">
                 <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">Gestione Pratica</h2>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             </div>
             <form id="practiceForm" class="space-y-4">
                 <input type="hidden" id="practiceId">
+                
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-600 mb-1">Codice PI</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Codice PI</label>
                         <input type="text" id="pi" placeholder="Es. 12345" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-600 mb-1">Scadenza</label>
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Scadenza</label>
                         <input type="date" id="deadline" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
                     </div>
                 </div>
+
                 <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-1">Condominio / Società</label>
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Condominio / Società</label>
                     <input type="text" id="entityName" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
                 </div>
+
                 <div>
-                    <label class="block text-sm font-semibold text-gray-600 mb-1">Attività</label>
-                    <input type="text" id="activity" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Attività</label>
+                    <input type="text" id="activity" placeholder="Es. Autorimessa, Centrale Termica..." class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
+
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-semibold text-gray-600 mb-1">Indirizzo</label>
-                        <input type="text" id="address" class="w-full border border-gray-300 p-2 rounded-lg outline-none">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Indirizzo</label>
+                        <input type="text" id="address" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label class="block text-sm font-semibold text-gray-600 mb-1">Comune</label>
-                        <input type="text" id="municipality" class="w-full border border-gray-300 p-2 rounded-lg outline-none">
+                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Comune</label>
+                        <input type="text" id="municipality" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeModal()" class="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg">Annulla</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700">Salva (Solo Sessione)</button>
+
+                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 mt-4">
+                    <p class="text-[10px] font-black text-blue-600 uppercase mb-2 tracking-widest">Contatto Amministratore</p>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Nome</label>
+                            <input type="text" id="adminName" placeholder="Mario Rossi" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-500 mb-1">Email</label>
+                            <input type="email" id="toEmail" placeholder="admin@esempio.it" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition">Annulla</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition">Salva Modifiche</button>
                 </div>
             </form>
         </div>
@@ -82,10 +101,10 @@
                 PRINCE <span class="text-blue-600 ml-2 italic">Fire</span>
                 <span class="demo-badge">Public Demo</span>
             </h1>
-            <p class="text-gray-500 mt-1 font-medium italic">Anteprima Funzionale Online</p>
+            <p class="text-gray-500 mt-1 font-medium italic uppercase text-[10px] tracking-[0.2em]">Archivio Digitale Scadenze Antincendio</p>
         </div>
         <div class="flex gap-2">
-            <button onclick="exportToExcel()" class="flex items-center px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition">
+            <button onclick="exportToExcel()" class="flex items-center px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition shadow-md">
                 <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta Excel
             </button>
         </div>
@@ -118,8 +137,8 @@
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
                 <input type="text" id="searchBar" oninput="render()" placeholder="Cerca pratica nella demo..." class="w-full bg-white border border-gray-200 py-2.5 pl-10 pr-4 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
-            <button onclick="openModal()" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition flex items-center justify-center">
-                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Aggiungi Prova
+            <button onclick="openModal()" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition flex items-center justify-center shadow-lg">
+                <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Nuova Pratica
             </button>
         </div>
 
@@ -127,36 +146,42 @@
             <table class="w-full text-left text-sm">
                 <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-widest border-b border-gray-100">
                     <tr>
-                        <th class="p-4">PI</th>
+                        <th class="p-4">Cod. PI</th>
                         <th class="p-4 text-center">Scadenza</th>
-                        <th class="p-4">Condominio/Ditta</th>
-                        <th class="p-4">Comune</th>
+                        <th class="p-4">Condominio / Ditta</th>
+                        <th class="p-4">Indirizzo e Comune</th>
+                        <th class="p-4">Contatto Admin</th>
                         <th class="p-4">Attività</th>
-                        <th class="p-4 text-right">Azioni</th>
+                        <th class="p-4 text-right px-6">Azioni</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="divide-y divide-gray-100 italic">
+                <tbody id="tableBody" class="divide-y divide-gray-100">
                     <!-- Dinamico -->
                 </tbody>
             </table>
         </div>
     </div>
 
+    <!-- FOOTER INFO LINK -->
+    <footer class="mt-8 text-center text-gray-400 text-[10px] uppercase tracking-widest pb-10">
+        <p>GitHub Pages Demo Mode | Versione 2.0 (Dati Locali)</p>
+    </footer>
+
     <script>
-        // DATI DI ESEMPIO FISSI PER LA DEMO
+        // DATI DI ESEMPIO INITIALI
         const generateDemoData = () => {
             const today = new Date();
             const formatDate = (date) => date.toISOString().split('T')[0];
             
-            const dateExpired = new Date(); dateExpired.setDate(today.getDate() - 15);
-            const dateImminent = new Date(); dateImminent.setDate(today.getDate() + 20);
-            const dateValid = new Date(); dateValid.setDate(today.getDate() + 180);
+            const dExpired = new Date(); dExpired.setDate(today.getDate() - 20);
+            const dImminent = new Date(); dImminent.setDate(today.getDate() + 15);
+            const dValid = new Date(); dValid.setDate(today.getDate() + 200);
 
             return [
-                { id: '1', pi: '88234', entityName: 'Condominio Belvedere', municipality: 'Milano', address: 'Via Roma 10', activity: 'Autorimessa', deadline: formatDate(dateExpired) },
-                { id: '2', pi: '99120', entityName: 'Hotel Splendid', municipality: 'Roma', address: 'Piazza Duomo 5', activity: 'Albergo', deadline: formatDate(dateImminent) },
-                { id: '3', pi: '44567', entityName: 'Supermercato Conad', municipality: 'Napoli', address: 'Via Vesuvio 100', activity: 'Locale commerciale', deadline: formatDate(dateValid) },
-                { id: '4', pi: '12003', entityName: 'Residenza i Giardini', municipality: 'Milano', address: 'Via Fiori 2', activity: 'Centrale Termica', deadline: formatDate(dateImminent) }
+                { id: '1', pi: '88234', entityName: 'Condominio Belvedere', municipality: 'Milano', address: 'Via Roma 10', activity: 'Autorimessa', adminName: 'Studio Rossi', toEmail: 'rossi@email.it', deadline: formatDate(dExpired) },
+                { id: '2', pi: '99120', entityName: 'Hotel Splendid', municipality: 'Roma', address: 'Piazza Duomo 5', activity: 'Albergo', adminName: 'Arch. Bianchi', toEmail: 'bianchi@hotel.com', deadline: formatDate(dImminent) },
+                { id: '3', pi: '44567', entityName: 'Supermercato Conad', municipality: 'Napoli', address: 'Via Vesuvio 100', activity: 'Commercio', adminName: 'Dott. Verde', toEmail: 'verde@gestione.it', deadline: formatDate(dValid) },
+                { id: '4', pi: '12003', entityName: 'Residenza i Giardini', municipality: 'Torino', address: 'Corso Francia 2', activity: 'Centrale Termica', adminName: 'Studio Blu', toEmail: 'blu@amministrazioni.it', deadline: formatDate(dImminent) }
             ];
         };
 
@@ -193,7 +218,8 @@
             let filtered = practices.filter(p => 
                 (p.pi || "").toLowerCase().includes(term) || 
                 (p.entityName || "").toLowerCase().includes(term) ||
-                (p.municipality || "").toLowerCase().includes(term)
+                (p.municipality || "").toLowerCase().includes(term) ||
+                (p.adminName || "").toLowerCase().includes(term)
             );
 
             if (currentFilter !== 'all') {
@@ -207,18 +233,34 @@
             }
 
             filtered.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
+            
+            if (filtered.length === 0) {
+                body.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic">Nessuna pratica trovata</td></tr>`;
+                return;
+            }
+
             body.innerHTML = filtered.map(p => {
                 const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
                 let statusClass = diff < 0 ? "expired" : (diff <= 60 ? "imminent" : "");
 
-                return `<tr class="hover:bg-gray-50/50 transition-colors ${statusClass}">
-                    <td class="p-4 font-bold text-gray-900">#${p.pi}</td>
-                    <td class="p-4 font-bold text-center">${p.deadline.split('-').reverse().join('/')}</td>
-                    <td class="p-4 font-bold text-gray-800">${p.entityName}</td>
-                    <td class="p-4 text-xs font-semibold uppercase">${p.municipality}</td>
-                    <td class="p-4 text-xs font-bold text-blue-700 uppercase">${p.activity}</td>
-                    <td class="p-4 text-right">
-                        <button onclick="del('${p.id}')" class="text-red-400 hover:text-red-600 p-2"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                return `<tr class="hover:bg-gray-50/80 transition-all ${statusClass}">
+                    <td class="p-4 font-black text-gray-900">#${p.pi || '---'}</td>
+                    <td class="p-4 font-black text-center text-gray-700">${p.deadline.split('-').reverse().join('/')}</td>
+                    <td class="p-4">
+                        <div class="font-bold text-gray-800 leading-tight">${p.entityName}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="text-[11px] text-gray-500 font-medium">${p.address || ''}</div>
+                        <div class="text-[10px] text-blue-600 font-bold uppercase">${p.municipality || ''}</div>
+                    </td>
+                    <td class="p-4">
+                        <div class="text-[11px] font-bold text-gray-700 leading-tight">${p.adminName || '---'}</div>
+                        <div class="text-[10px] text-gray-400">${p.toEmail || ''}</div>
+                    </td>
+                    <td class="p-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase tracking-tighter">${p.activity || 'Attività'}</span></td>
+                    <td class="p-4 text-right px-6 space-x-1">
+                        <button onclick="editPratica('${p.id}')" class="text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition" title="Modifica"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                        <button onclick="del('${p.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition" title="Elimina"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                     </td>
                 </tr>`;
             }).join('');
@@ -226,34 +268,72 @@
             updateCounts();
         };
 
-        window.openModal = () => { document.getElementById('practiceForm').reset(); document.getElementById('practiceId').value = ''; document.getElementById('practiceModal').classList.remove('hidden'); };
+        window.openModal = () => { 
+            document.getElementById('modalTitle').innerText = "Nuova Pratica";
+            document.getElementById('practiceForm').reset(); 
+            document.getElementById('practiceId').value = ''; 
+            document.getElementById('practiceModal').classList.remove('hidden'); 
+        };
+
+        window.editPratica = (id) => {
+            const p = practices.find(x => x.id === id);
+            if (!p) return;
+            document.getElementById('modalTitle').innerText = "Modifica Pratica";
+            document.getElementById('practiceId').value = p.id;
+            document.getElementById('pi').value = p.pi || '';
+            document.getElementById('deadline').value = p.deadline;
+            document.getElementById('entityName').value = p.entityName;
+            document.getElementById('activity').value = p.activity || '';
+            document.getElementById('address').value = p.address || '';
+            document.getElementById('municipality').value = p.municipality || '';
+            document.getElementById('adminName').value = p.adminName || '';
+            document.getElementById('toEmail').value = p.toEmail || '';
+            document.getElementById('practiceModal').classList.remove('hidden');
+        };
+
         window.closeModal = () => document.getElementById('practiceModal').classList.add('hidden');
-        window.del = (id) => { practices = practices.filter(x => x.id !== id); render(); };
+        
+        window.del = (id) => { 
+            if(confirm("Sei sicuro di voler eliminare questa pratica dalla demo?")) {
+                practices = practices.filter(x => x.id !== id); 
+                render(); 
+            }
+        };
         
         document.getElementById('practiceForm').onsubmit = (e) => {
             e.preventDefault();
+            const id = document.getElementById('practiceId').value;
             const newData = {
-                id: Date.now().toString(),
+                id: id || Date.now().toString(),
                 pi: document.getElementById('pi').value,
                 deadline: document.getElementById('deadline').value,
                 entityName: document.getElementById('entityName').value,
                 activity: document.getElementById('activity').value,
                 address: document.getElementById('address').value,
-                municipality: document.getElementById('municipality').value
+                municipality: document.getElementById('municipality').value,
+                adminName: document.getElementById('adminName').value,
+                toEmail: document.getElementById('toEmail').value
             };
-            practices.push(newData);
+
+            if (id) {
+                const index = practices.findIndex(x => x.id === id);
+                practices[index] = newData;
+            } else {
+                practices.push(newData);
+            }
+            
             closeModal();
             render();
         };
 
         window.exportToExcel = () => {
-            const headers = ["PI;Scadenza;Entita;Comune;Attivita"];
-            const rows = practices.map(p => `${p.pi};${p.deadline};${p.entityName};${p.municipality};${p.activity}`);
+            const headers = ["PI;Scadenza;Entita;Indirizzo;Comune;Attivita;Amministratore;Email"];
+            const rows = practices.map(p => `${p.pi};${p.deadline};${p.entityName};${p.address};${p.municipality};${p.activity};${p.adminName};${p.toEmail}`);
             const csv = "sep=;\n" + headers.concat(rows).join("\n");
             const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "demo_export_fire.csv";
+            link.download = "prince_fire_demo.csv";
             link.click();
         };
 
