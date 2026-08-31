@@ -69,7 +69,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold text-gray-600 mb-1">Email Amministratore</label>
-                        <input type="email" id="adminEmail" placeholder="mail@esempio.it" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                        <input type="email" id="adminEmail" placeholder="mail@esempio.it" value="prevenzioneprince@gmail.com" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                 </div>
                 <input type="hidden" id="mailSent60" value="false">
@@ -117,6 +117,13 @@
                 <i data-lucide="history" class="w-4 h-4 mr-1.5"></i> Ripristina JSON
                 <input type="file" id="importJsonFile" class="hidden" accept=".json" onchange="importFromJson(event)">
             </label>
+
+            <div class="w-px h-6 bg-gray-300 mx-1"></div>
+
+            <!-- IMPOSTA EMAIL DEFAULT SU TUTTE -->
+            <button onclick="setDefaultEmailOnAll()" class="flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-[11px] font-bold rounded-lg hover:bg-blue-200 transition border border-blue-200">
+                <i data-lucide="mail-plus" class="w-4 h-4 mr-1.5"></i> Imposta Mail su Tutte
+            </button>
         </div>
     </header>
 
@@ -203,9 +210,12 @@
         //    entity_name, pi_code, activity, deadline, address, municipality
         //    e copia il Template ID
         // 4. In "Account" > "General" copia la tua Public Key
-        const EMAILJS_PUBLIC_KEY = "ogNbigIv4GGvoiF1y";
-        const EMAILJS_SERVICE_ID = "service_6ei25xg";
-        const EMAILJS_TEMPLATE_ID = "template_78ncjup";
+        const EMAILJS_PUBLIC_KEY = "INSERISCI_LA_TUA_PUBLIC_KEY";
+        const EMAILJS_SERVICE_ID = "INSERISCI_IL_TUO_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "INSERISCI_IL_TUO_TEMPLATE_ID";
+
+        // Email usata come destinatario di default quando una pratica non ne ha una propria
+        const DEFAULT_ADMIN_EMAIL = "prevenzioneprince@gmail.com";
 
         if (window.emailjs && !EMAILJS_PUBLIC_KEY.startsWith("INSERISCI")) {
             emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
@@ -260,7 +270,7 @@
         async function checkReminders() {
             const now = new Date().setHours(0,0,0,0);
             for (const p of practices) {
-                if (!p.deadline || !p.adminEmail) continue;
+                if (!p.deadline) continue;
                 const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
                 if (diff >= 0 && diff <= 60 && !p.mailSent60) {
                     await sendReminderEmail(p);
@@ -275,7 +285,7 @@
             }
             try {
                 await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
-                    to_email: p.adminEmail,
+                    to_email: p.adminEmail || DEFAULT_ADMIN_EMAIL,
                     to_name: p.administrator || "Amministratore",
                     entity_name: p.entityName || "",
                     pi_code: p.pi || "",
@@ -300,9 +310,21 @@
         window.sendManualReminder = async (id) => {
             const p = practices.find(x => x.id === id);
             if (!p) return;
-            if (!p.adminEmail) { alert("Nessuna email amministratore impostata per questa pratica."); return; }
             const ok = await sendReminderEmail(p);
             alert(ok ? "Email inviata a " + p.adminEmail : "Invio non riuscito. Controlla la configurazione EmailJS (vedi console).");
+        };
+
+        // Imposta DEFAULT_ADMIN_EMAIL su tutte le pratiche che non hanno un'email propria
+        window.setDefaultEmailOnAll = async () => {
+            const missing = practices.filter(p => !p.adminEmail || p.adminEmail.trim() === "");
+            if (missing.length === 0) { alert("Tutte le pratiche hanno già un'email amministratore impostata."); return; }
+            if (!confirm(`Verrà impostata l'email "${DEFAULT_ADMIN_EMAIL}" su ${missing.length} pratiche prive di email. Procedere?`)) return;
+            const batch = writeBatch(db);
+            missing.forEach(p => {
+                batch.update(doc(db, 'scadenze_pratiche', p.id), { adminEmail: DEFAULT_ADMIN_EMAIL, updatedAt: serverTimestamp() });
+            });
+            await batch.commit();
+            alert(`Email impostata su ${missing.length} pratiche.`);
         };
 
         window.setFilter = (type) => {
@@ -485,7 +507,7 @@
             document.getElementById('activity').value = p.activity || '';
             document.getElementById('address').value = p.address || '';
             document.getElementById('administrator').value = p.administrator || '';
-            document.getElementById('adminEmail').value = p.adminEmail || '';
+            document.getElementById('adminEmail').value = p.adminEmail || DEFAULT_ADMIN_EMAIL;
             document.getElementById('municipality').value = p.municipality || '';
             document.getElementById('modalTitle').innerText = 'Modifica Pratica';
             document.getElementById('practiceModal').classList.remove('hidden');
