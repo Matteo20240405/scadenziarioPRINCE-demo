@@ -3,94 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DEMO - Scadenziario PRINCE Fire</title>
-    <!-- Tailwind CSS per lo stile -->
+    <title>Scadenziario PRINCE Fire - Gestione Sheet</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Inter -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
         .card { border-radius: 0.75rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
         .imminent { background-color: #fefce8 !important; border-left: 4px solid #facc15; }
         .expired { background-color: #fef2f2 !important; border-left: 4px solid #ef4444; }
+        #errorMessage { display: none; }
         .filter-btn.active { border-color: #2563eb; background-color: #eff6ff; color: #1e40af; ring: 2px; --tw-ring-color: #3b82f6; }
-        .demo-badge { background: #fee2e2; color: #991b1b; padding: 2px 8px; border-radius: 99px; font-size: 10px; font-weight: bold; text-transform: uppercase; margin-left: 8px; }
     </style>
 </head>
 <body class="p-4 md:p-8 text-gray-800">
 
-    <!-- AVVISO MODALITÀ DEMO -->
-    <div class="mb-6 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700 card flex items-center justify-between">
-        <div class="flex items-center">
-            <i data-lucide="info" class="w-5 h-5 mr-3"></i>
-            <p class="text-sm font-medium"><strong>MODALITÀ DEMO:</strong> I dati sono solo illustrativi. Le modifiche non verranno salvate sul database reale.</p>
-        </div>
-        <a href="#" onclick="window.location.reload()" class="text-xs font-bold underline hover:no-underline">Reset Demo</a>
+    <!-- Messaggio Errore -->
+    <div id="errorMessage" class="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 card">
+        <p class="font-bold text-lg">Errore di Configurazione</p>
+        <p id="errorDetails" class="text-sm"></p>
     </div>
 
     <!-- MODALE GESTIONE PRATICA -->
     <div id="practiceModal" class="fixed inset-0 bg-gray-900/50 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-white w-full max-w-lg p-6 card max-h-[90vh] overflow-y-auto shadow-2xl">
+        <div class="bg-white w-full max-w-lg p-6 card max-h-[90vh] overflow-y-auto">
             <div class="flex justify-between items-center mb-4">
                 <h2 id="modalTitle" class="text-2xl font-bold text-gray-800">Gestione Pratica</h2>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x"></i>
-                </button>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600"><i data-lucide="x"></i></button>
             </div>
             <form id="practiceForm" class="space-y-4">
                 <input type="hidden" id="practiceId">
-                
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Codice PI</label>
-                        <input type="text" id="pi" placeholder="Es. 12345" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Codice PI</label>
+                        <input type="text" id="pi" placeholder="Es. 12345" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Data Scadenza</label>
-                        <input type="date" id="deadline" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Scadenza</label>
+                        <input type="date" id="deadline" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
                     </div>
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Condominio / Società</label>
-                    <input type="text" id="entityName" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" required>
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Condominio / Società</label>
+                    <input type="text" id="entityName" placeholder="Nome del condominio" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
                 </div>
-
                 <div>
-                    <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Attività</label>
-                    <input type="text" id="activity" placeholder="Es. Autorimessa, Centrale Termica..." class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                    <label class="block text-sm font-semibold text-gray-600 mb-1">Attività</label>
+                    <input type="text" id="activity" placeholder="Es. Autorimessa, Centrale Termica, ecc." class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                 </div>
-
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Indirizzo</label>
-                        <input type="text" id="address" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Indirizzo</label>
+                        <input type="text" id="address" placeholder="Via/Piazza e civico" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                     <div>
-                        <label class="block text-xs font-bold text-gray-500 uppercase mb-1">Comune</label>
-                        <input type="text" id="municipality" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Comune</label>
+                        <input type="text" id="municipality" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                 </div>
-
-                <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 mt-4">
-                    <p class="text-[10px] font-black text-blue-600 uppercase mb-2 tracking-widest">Contatto Amministratore</p>
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">Nome</label>
-                            <input type="text" id="adminName" placeholder="Mario Rossi" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
-                        <div>
-                            <label class="block text-xs font-bold text-gray-500 mb-1">Email</label>
-                            <input type="email" id="toEmail" placeholder="admin@esempio.it" class="w-full border border-gray-300 p-2 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
-                        </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Amministratore</label>
+                        <input type="text" id="administrator" placeholder="Nome" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-600 mb-1">Email Amministratore</label>
+                        <input type="email" id="adminEmail" placeholder="mail@esempio.it" class="w-full border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                     </div>
                 </div>
+                <input type="hidden" id="mailSent60" value="false">
 
-                <div class="flex justify-end space-x-3 pt-4 border-t border-gray-100">
+                <div class="flex justify-end space-x-3 pt-4">
                     <button type="button" onclick="closeModal()" class="px-5 py-2 text-gray-600 font-medium hover:bg-gray-100 rounded-lg transition">Annulla</button>
-                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-md transition">Salva Modifiche</button>
+                    <button type="submit" class="px-5 py-2 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 shadow-lg shadow-blue-200 transition">Salva Pratica</button>
                 </div>
             </form>
         </div>
@@ -100,143 +86,247 @@
     <header class="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
             <h1 class="text-3xl font-black text-gray-900 flex items-center">
-                <span class="bg-blue-600 p-2 rounded-lg mr-3 shadow-lg">
+                <span class="bg-blue-600 p-2 rounded-lg mr-3 shadow-lg shadow-blue-200">
                     <i data-lucide="shield-check" class="text-white w-8 h-8"></i>
                 </span>
-                PRINCE <span class="text-blue-600 ml-2 italic">Fire</span>
-                <span class="demo-badge">Public Demo</span>
+                Scadenziario PRINCE <span class="text-blue-600 ml-2 italic">Fire</span>
             </h1>
-            <p class="text-gray-500 mt-1 font-medium italic uppercase text-[10px] tracking-[0.2em]">Archivio Digitale Scadenze Antincendio</p>
+            <p class="text-gray-500 mt-1 font-medium italic">Gestione Integrata Sheet & Cloud</p>
         </div>
-        <div class="flex gap-2">
-            <button onclick="exportToExcel()" class="flex items-center px-4 py-2 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition shadow-md">
-                <i data-lucide="download" class="w-4 h-4 mr-2"></i> Esporta Excel
+        <div class="flex flex-wrap items-center gap-2">
+            <!-- EXPORT EXCEL -->
+            <button onclick="exportToExcel()" class="flex items-center px-3 py-1.5 bg-green-600 text-white text-[11px] font-bold rounded-lg hover:bg-green-700 transition shadow-sm">
+                <i data-lucide="download" class="w-4 h-4 mr-1.5"></i> Esporta Excel
             </button>
+            
+            <!-- IMPORT EXCEL -->
+            <label class="flex items-center px-3 py-1.5 bg-emerald-100 text-emerald-700 text-[11px] font-bold rounded-lg hover:bg-emerald-200 cursor-pointer transition border border-emerald-200">
+                <i data-lucide="file-up" class="w-4 h-4 mr-1.5"></i> Importa Excel
+                <input type="file" id="importExcelFile" class="hidden" accept=".csv" onchange="importFromExcel(event)">
+            </label>
+
+            <div class="w-px h-6 bg-gray-300 mx-1"></div>
+
+            <!-- BACKUP JSON -->
+            <button onclick="exportData()" class="flex items-center px-3 py-1.5 bg-gray-800 text-white text-[11px] font-bold rounded-lg hover:bg-black transition">
+                <i data-lucide="database" class="w-4 h-4 mr-1.5"></i> Backup JSON
+            </button>
+
+            <!-- RIPRISTINA JSON -->
+            <label class="flex items-center px-3 py-1.5 bg-gray-100 text-gray-600 text-[11px] font-bold rounded-lg hover:bg-gray-200 cursor-pointer transition border border-gray-300">
+                <i data-lucide="history" class="w-4 h-4 mr-1.5"></i> Ripristina JSON
+                <input type="file" id="importJsonFile" class="hidden" accept=".json" onchange="importFromJson(event)">
+            </label>
         </div>
     </header>
 
     <!-- DASHBOARD FILTRI -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-        <button onclick="setFilter('all')" id="btn-all" class="filter-btn active bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
-            <div class="text-left"><p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totali</p><p id="count-all" class="text-2xl font-black text-gray-800">0</p></div>
-            <i data-lucide="list" class="text-gray-300 group-hover:text-blue-400 transition-colors"></i>
+        <button onclick="setFilter('all')" id="btn-all" class="filter-btn active bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Totali</p>
+                <p id="count-all" class="text-2xl font-black text-gray-800">0</p>
+            </div>
+            <i data-lucide="list" class="text-gray-300"></i>
         </button>
-        <button onclick="setFilter('expired')" id="btn-expired" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
-            <div class="text-left"><p class="text-xs font-bold text-red-400 uppercase tracking-wider">Scadute</p><p id="count-expired" class="text-2xl font-black text-red-600">0</p></div>
-            <i data-lucide="alert-circle" class="text-red-200 group-hover:text-red-400 transition-colors"></i>
+        <button onclick="setFilter('expired')" id="btn-expired" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-xs font-bold text-red-400 uppercase tracking-wider">Scadute</p>
+                <p id="count-expired" class="text-2xl font-black text-red-600">0</p>
+            </div>
+            <i data-lucide="alert-circle" class="text-red-200"></i>
         </button>
-        <button onclick="setFilter('imminent')" id="btn-imminent" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
-            <div class="text-left"><p class="text-xs font-bold text-yellow-500 uppercase tracking-wider">In Scadenza</p><p id="count-imminent" class="text-2xl font-black text-yellow-600">0</p></div>
-            <i data-lucide="clock" class="text-yellow-200 group-hover:text-yellow-400 transition-colors"></i>
+        <button onclick="setFilter('imminent')" id="btn-imminent" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-xs font-bold text-yellow-500 uppercase tracking-wider">In Scadenza</p>
+                <p id="count-imminent" class="text-2xl font-black text-yellow-600">0</p>
+            </div>
+            <i data-lucide="clock" class="text-yellow-200"></i>
         </button>
-        <button onclick="setFilter('valid')" id="btn-valid" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between group">
-            <div class="text-left"><p class="text-xs font-bold text-green-400 uppercase tracking-wider">Regolari</p><p id="count-valid" class="text-2xl font-black text-green-600">0</p></div>
-            <i data-lucide="check-circle" class="text-green-200 group-hover:text-green-400 transition-colors"></i>
+        <button onclick="setFilter('valid')" id="btn-valid" class="filter-btn bg-white p-4 card border-2 border-transparent transition-all flex items-center justify-between">
+            <div class="text-left">
+                <p class="text-xs font-bold text-green-400 uppercase tracking-wider">Regolari</p>
+                <p id="count-valid" class="text-2xl font-black text-green-600">0</p>
+            </div>
+            <i data-lucide="check-circle" class="text-green-200"></i>
         </button>
     </div>
 
     <!-- TABELLA -->
-    <div class="bg-white card overflow-hidden border border-gray-100 min-h-[400px]">
+    <div class="bg-white card overflow-hidden border border-gray-100">
         <div class="p-6 border-b border-gray-100 flex flex-col md:flex-row justify-between items-center gap-4 bg-gray-50/30">
             <div class="relative w-full md:w-96">
                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"></i>
-                <input type="text" id="searchBar" oninput="render()" placeholder="Cerca pratica nella demo..." class="w-full bg-white border border-gray-200 py-2.5 pl-10 pr-4 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
+                <input type="text" id="searchBar" oninput="render()" placeholder="Cerca..." class="w-full bg-white border border-gray-200 py-2.5 pl-10 pr-4 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none transition-all">
             </div>
-            <button onclick="openModal()" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition flex items-center justify-center shadow-lg">
+            <button onclick="openModal()" class="w-full md:w-auto px-6 py-2.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition flex items-center justify-center shadow-lg shadow-blue-200">
                 <i data-lucide="plus" class="w-5 h-5 mr-2"></i> Nuova Pratica
             </button>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm border-collapse">
+            <table class="w-full text-left text-sm">
                 <thead class="bg-gray-50 text-gray-500 font-bold uppercase text-[10px] tracking-widest border-b border-gray-100">
                     <tr>
-                        <th class="p-4">Cod. PI</th>
+                        <th class="p-4">PI</th>
                         <th class="p-4 text-center">Scadenza</th>
-                        <th class="p-4">Condominio / Ditta</th>
-                        <th class="p-4">Indirizzo e Comune</th>
-                        <th class="p-4">Contatto Admin</th>
+                        <th class="p-4">Condominio/Ditta</th>
+                        <th class="p-4">Comune</th>
+                        <th class="p-4">Indirizzo</th>
                         <th class="p-4">Attività</th>
-                        <th class="p-4 text-right px-6">Azioni</th>
+                        <th class="p-4 text-right">Azioni</th>
                     </tr>
                 </thead>
-                <tbody id="tableBody" class="divide-y divide-gray-100">
-                    <!-- Contenuto caricato via JS -->
-                </tbody>
+                <tbody id="tableBody" class="divide-y divide-gray-100 italic"></tbody>
             </table>
         </div>
     </div>
 
-    <footer class="mt-8 text-center text-gray-400 text-[10px] uppercase tracking-widest pb-10">
-        <p>GitHub Pages Demo Mode | Versione 2.0 (Dati Locali)</p>
-    </footer>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, doc, updateDoc, deleteDoc, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    <script>
-        // DATI DI ESEMPIO
-        const generateDemoData = () => {
-            const today = new Date();
-            const formatDate = (date) => date.toISOString().split('T')[0];
-            
-            const dExpired = new Date(); dExpired.setDate(today.getDate() - 20);
-            const dImminent = new Date(); dImminent.setDate(today.getDate() + 15);
-            const dValid = new Date(); dValid.setDate(today.getDate() + 200);
-
-            return [
-                { id: '1', pi: '88234', entityName: 'Condominio Belvedere', municipality: 'Milano', address: 'Via Roma 10', activity: 'Autorimessa', adminName: 'Studio Rossi', toEmail: 'rossi@email.it', deadline: formatDate(dExpired) },
-                { id: '2', pi: '99120', entityName: 'Hotel Splendid', municipality: 'Roma', address: 'Piazza Duomo 5', activity: 'Albergo', adminName: 'Arch. Bianchi', toEmail: 'bianchi@hotel.com', deadline: formatDate(dImminent) },
-                { id: '3', pi: '44567', entityName: 'Supermercato Conad', municipality: 'Napoli', address: 'Via Vesuvio 100', activity: 'Commercio', adminName: 'Dott. Verde', toEmail: 'verde@gestione.it', deadline: formatDate(dValid) },
-                { id: '4', pi: '12003', entityName: 'Residenza i Giardini', municipality: 'Torino', address: 'Corso Francia 2', activity: 'Centrale Termica', adminName: 'Studio Blu', toEmail: 'blu@amministrazioni.it', deadline: formatDate(dImminent) }
-            ];
+        const firebaseConfig = {
+            apiKey: "AIzaSyB1V1I7lMYKT7_eUTiVEVFZDwPr3V94el8",
+            authDomain: "scadenziario-prince.firebaseapp.com",
+            projectId: "scadenziario-prince",
+            storageBucket: "scadenziario-prince.firebasestorage.app",
+            messagingSenderId: "224799236818",
+            appId: "1:224799236818:web:1fbd60f62f653f97f2030b"
         };
 
-        let practices = generateDemoData();
-        let currentFilter = 'all';
+        // --- CONFIGURAZIONE EMAILJS (per invio email automatico/manuale) ---
+        // 1. Crea un account gratuito su https://www.emailjs.com/ (piano free: 200 email/mese)
+        // 2. In "Email Services" collega la tua casella (es. Gmail) e copia il Service ID
+        // 3. In "Email Templates" crea un template con le variabili: to_email, to_name,
+        //    entity_name, pi_code, activity, deadline, address, municipality
+        //    e copia il Template ID
+        // 4. In "Account" > "General" copia la tua Public Key
+        const EMAILJS_PUBLIC_KEY = "INSERISCI_LA_TUA_PUBLIC_KEY";
+        const EMAILJS_SERVICE_ID = "INSERISCI_IL_TUO_SERVICE_ID";
+        const EMAILJS_TEMPLATE_ID = "INSERISCI_IL_TUO_TEMPLATE_ID";
 
-        // AGGIORNA CONTATORI DASHBOARD
-        const updateCounts = () => {
+        if (window.emailjs && !EMAILJS_PUBLIC_KEY.startsWith("INSERISCI")) {
+            emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+        }
+
+        let db, practices = [], currentFilter = 'all';
+
+        async function init() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                const auth = getAuth(app);
+                await signInAnonymously(auth);
+                onAuthStateChanged(auth, u => { if(u) setupSync(); });
+            } catch (e) { showError(e.message); }
+        }
+
+        function showError(msg) {
+            document.getElementById('errorMessage').style.display = 'block';
+            document.getElementById('errorDetails').innerText = msg;
+        }
+
+        function setupSync() {
+            onSnapshot(collection(db, 'scadenze_pratiche'), snap => {
+                practices = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+                updateCounts();
+                render();
+                checkReminders();
+            });
+        }
+
+        function updateCounts() {
             const now = new Date().setHours(0,0,0,0);
             const counts = { all: practices.length, expired: 0, imminent: 0, valid: 0 };
             
             practices.forEach(p => {
-                const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                const diff = p.deadline ? Math.ceil((new Date(p.deadline) - now) / 86400000) : 999;
                 if (diff < 0) counts.expired++;
                 else if (diff <= 60) counts.imminent++;
                 else counts.valid++;
             });
-            
+
             document.getElementById('count-all').innerText = counts.all;
             document.getElementById('count-expired').innerText = counts.expired;
             document.getElementById('count-imminent').innerText = counts.imminent;
             document.getElementById('count-valid').innerText = counts.valid;
+        }
+
+        // --- PROMEMORIA EMAIL A 60 GIORNI DALLA SCADENZA ---
+        // Controlla tutte le pratiche: se sono entrate nella finestra 0-60 giorni
+        // e non è già stata inviata una mail (mailSent60), invia il promemoria.
+        async function checkReminders() {
+            const now = new Date().setHours(0,0,0,0);
+            for (const p of practices) {
+                if (!p.deadline || !p.adminEmail) continue;
+                const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                if (diff >= 0 && diff <= 60 && !p.mailSent60) {
+                    await sendReminderEmail(p);
+                }
+            }
+        }
+
+        async function sendReminderEmail(p) {
+            if (!window.emailjs || EMAILJS_SERVICE_ID.startsWith("INSERISCI")) {
+                console.warn("EmailJS non configurato: impossibile inviare la mail per", p.entityName);
+                return false;
+            }
+            try {
+                await emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+                    to_email: p.adminEmail,
+                    to_name: p.administrator || "Amministratore",
+                    entity_name: p.entityName || "",
+                    pi_code: p.pi || "",
+                    activity: p.activity || "",
+                    deadline: p.deadline ? p.deadline.split('-').reverse().join('/') : "",
+                    address: p.address || "",
+                    municipality: p.municipality || ""
+                });
+                await updateDoc(doc(db, 'scadenze_pratiche', p.id), {
+                    mailSent60: true,
+                    mailSentAt: serverTimestamp()
+                });
+                console.log("Email di promemoria inviata per:", p.entityName);
+                return true;
+            } catch (err) {
+                console.error("Errore invio email per", p.entityName, err);
+                return false;
+            }
+        }
+
+        // Invio manuale da pulsante in tabella (funziona anche fuori dalla finestra 60gg)
+        window.sendManualReminder = async (id) => {
+            const p = practices.find(x => x.id === id);
+            if (!p) return;
+            if (!p.adminEmail) { alert("Nessuna email amministratore impostata per questa pratica."); return; }
+            const ok = await sendReminderEmail(p);
+            alert(ok ? "Email inviata a " + p.adminEmail : "Invio non riuscito. Controlla la configurazione EmailJS (vedi console).");
         };
 
-        // GESTIONE FILTRI
         window.setFilter = (type) => {
             currentFilter = type;
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            const activeBtn = document.getElementById(`btn-${type}`);
-            if(activeBtn) activeBtn.classList.add('active');
+            document.getElementById(`btn-${type}`).classList.add('active');
             render();
         };
 
-        // RENDERING TABELLA
         window.render = () => {
             const term = document.getElementById('searchBar').value.toLowerCase();
             const body = document.getElementById('tableBody');
             const now = new Date().setHours(0,0,0,0);
             
-            if (!body) return;
-
             let filtered = practices.filter(p => 
                 (p.pi || "").toLowerCase().includes(term) || 
                 (p.entityName || "").toLowerCase().includes(term) ||
                 (p.municipality || "").toLowerCase().includes(term) ||
-                (p.adminName || "").toLowerCase().includes(term)
+                (p.address || "").toLowerCase().includes(term)
             );
 
             if (currentFilter !== 'all') {
                 filtered = filtered.filter(p => {
-                    const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
+                    const diff = p.deadline ? Math.ceil((new Date(p.deadline) - now) / 86400000) : 999;
                     if (currentFilter === 'expired') return diff < 0;
                     if (currentFilter === 'imminent') return diff >= 0 && diff <= 60;
                     if (currentFilter === 'valid') return diff > 60;
@@ -246,124 +336,181 @@
 
             filtered.sort((a,b) => new Date(a.deadline) - new Date(b.deadline));
             
-            if (filtered.length === 0) {
-                body.innerHTML = `<tr><td colspan="7" class="p-10 text-center text-gray-400 italic">Nessuna pratica trovata</td></tr>`;
-            } else {
-                body.innerHTML = filtered.map(p => {
-                    const diff = Math.ceil((new Date(p.deadline) - now) / 86400000);
-                    let statusClass = diff < 0 ? "expired" : (diff <= 60 ? "imminent" : "");
+            body.innerHTML = filtered.map(p => {
+                const diff = p.deadline ? Math.ceil((new Date(p.deadline) - now) / 86400000) : 999;
+                let statusClass = "";
+                if (diff < 0) statusClass = "expired";
+                else if (diff <= 60) statusClass = "imminent";
 
-                    return `<tr class="hover:bg-gray-50 transition-all ${statusClass}">
-                        <td class="p-4 font-black text-gray-900">#${p.pi || '---'}</td>
-                        <td class="p-4 font-black text-center text-gray-700">${p.deadline.split('-').reverse().join('/')}</td>
-                        <td class="p-4"><div class="font-bold text-gray-800 leading-tight">${p.entityName}</div></td>
-                        <td class="p-4">
-                            <div class="text-[11px] text-gray-500 font-medium">${p.address || ''}</div>
-                            <div class="text-[10px] text-blue-600 font-bold uppercase">${p.municipality || ''}</div>
-                        </td>
-                        <td class="p-4">
-                            <div class="text-[11px] font-bold text-gray-700 leading-tight">${p.adminName || '---'}</div>
-                            <div class="text-[10px] text-gray-400">${p.toEmail || ''}</div>
-                        </td>
-                        <td class="p-4"><span class="px-2 py-1 bg-gray-100 text-gray-600 text-[10px] font-bold rounded uppercase tracking-tighter">${p.activity || 'Attività'}</span></td>
-                        <td class="p-4 text-right px-6 space-x-1">
-                            <button onclick="editPratica('${p.id}')" class="text-blue-500 hover:bg-blue-100 p-2 rounded-lg transition" title="Modifica">
-                                <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="delPratica('${p.id}')" class="text-red-400 hover:bg-red-50 p-2 rounded-lg transition" title="Elimina">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                        </td>
-                    </tr>`;
-                }).join('');
-            }
+                return `<tr class="hover:bg-gray-50/50 transition-colors ${statusClass}">
+                    <td class="p-4 font-bold text-gray-900 tracking-tighter">${p.pi ? '#' + p.pi : '-'}</td>
+                    <td class="p-4 font-bold text-center">
+                        <span class="px-2 py-1 rounded ${statusClass === 'expired' ? 'text-red-700' : (statusClass === 'imminent' ? 'text-yellow-700' : '')}">
+                            ${p.deadline ? p.deadline.split('-').reverse().join('/') : '-'}
+                        </span>
+                    </td>
+                    <td class="p-4 font-bold text-gray-800">${p.entityName || 'N.D.'}</td>
+                    <td class="p-4 text-xs font-semibold uppercase">${p.municipality || '-'}</td>
+                    <td class="p-4 text-xs text-gray-500 uppercase">${p.address || '-'}</td>
+                    <td class="p-4 text-xs font-bold text-blue-700 uppercase tracking-tighter">${p.activity || '-'}</td>
+                    <td class="p-4 text-right">
+                        <div class="flex justify-end gap-1">
+                            <button onclick="sendManualReminder('${p.id}')" class="text-emerald-600 p-2 hover:bg-emerald-100 rounded-lg transition" title="Invia promemoria via email"><i data-lucide="mail" class="w-4 h-4"></i></button>
+                            <button onclick="edit('${p.id}')" class="text-blue-600 p-2 hover:bg-blue-100 rounded-lg transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+                            <button onclick="del('${p.id}')" class="text-red-600 p-2 hover:bg-red-100 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+                        </div>
+                    </td>
+                </tr>`;
+            }).join('');
+            lucide.createIcons();
+        }
 
-            // Forza il refresh delle icone se Lucide è caricato
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
-            updateCounts();
-        };
-
-        // GESTIONE MODALE
-        window.openModal = () => { 
-            document.getElementById('modalTitle').innerText = "Nuova Pratica";
-            document.getElementById('practiceForm').reset(); 
-            document.getElementById('practiceId').value = ''; 
-            document.getElementById('practiceModal').classList.remove('hidden'); 
-        };
-
-        window.closeModal = () => {
-            document.getElementById('practiceModal').classList.add('hidden');
-        };
-
-        window.editPratica = (id) => {
-            const p = practices.find(x => x.id === id);
-            if (!p) return;
-            document.getElementById('modalTitle').innerText = "Modifica Pratica";
-            document.getElementById('practiceId').value = p.id;
-            document.getElementById('pi').value = p.pi || '';
-            document.getElementById('deadline').value = p.deadline;
-            document.getElementById('entityName').value = p.entityName;
-            document.getElementById('activity').value = p.activity || '';
-            document.getElementById('address').value = p.address || '';
-            document.getElementById('municipality').value = p.municipality || '';
-            document.getElementById('adminName').value = p.adminName || '';
-            document.getElementById('toEmail').value = p.toEmail || '';
-            document.getElementById('practiceModal').classList.remove('hidden');
-            if (window.lucide) window.lucide.createIcons();
-        };
-
-        window.delPratica = (id) => { 
-            if(confirm("Sei sicuro di voler eliminare questa pratica dalla demo?")) {
-                practices = practices.filter(x => x.id !== id); 
-                render(); 
-            }
-        };
-        
-        // SALVATAGGIO
-        document.getElementById('practiceForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const id = document.getElementById('practiceId').value;
-            const newData = {
-                id: id || Date.now().toString(),
-                pi: document.getElementById('pi').value,
-                deadline: document.getElementById('deadline').value,
-                entityName: document.getElementById('entityName').value,
-                activity: document.getElementById('activity').value,
-                address: document.getElementById('address').value,
-                municipality: document.getElementById('municipality').value,
-                adminName: document.getElementById('adminName').value,
-                toEmail: document.getElementById('toEmail').value
-            };
-
-            if (id) {
-                const index = practices.findIndex(x => x.id === id);
-                if (index !== -1) practices[index] = newData;
-            } else {
-                practices.push(newData);
-            }
-            
-            closeModal();
-            render();
-        });
-
-        // ESPORTAZIONE
-        window.exportToExcel = () => {
-            const headers = ["PI;Scadenza;Entita;Indirizzo;Comune;Attivita;Amministratore;Email"];
-            const rows = practices.map(p => `${p.pi};${p.deadline};${p.entityName};${p.address};${p.municipality};${p.activity};${p.adminName};${p.toEmail}`);
-            const csv = "sep=;\n" + headers.concat(rows).join("\n");
-            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+        // --- BACKUP JSON ---
+        window.exportData = () => {
+            const dataStr = JSON.stringify(practices, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
             const link = document.createElement("a");
             link.href = URL.createObjectURL(blob);
-            link.download = "prince_fire_demo.csv";
+            link.download = `backup_safecheck_${new Date().toISOString().split('T')[0]}.json`;
             link.click();
         };
 
-        // INIZIALIZZAZIONE SICURA
-        document.addEventListener('DOMContentLoaded', () => {
-            render();
-        });
+        // --- RIPRISTINA JSON ---
+        window.importFromJson = (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    if (!Array.isArray(data)) throw new Error("Formato JSON non valido.");
+                    
+                    if (confirm(`Stai per ripristinare ${data.length} pratiche dal backup. I dati esistenti con lo stesso codice verranno aggiornati. Procedere?`)) {
+                        const batch = writeBatch(db);
+                        data.forEach(p => {
+                            const existing = practices.find(ex => ex.pi === p.pi);
+                            const cleanData = { ...p };
+                            delete cleanData.id; // Non usiamo l'ID del backup per evitare conflitti
+                            cleanData.updatedAt = serverTimestamp();
+
+                            if (existing) {
+                                batch.update(doc(db, 'scadenze_pratiche', existing.id), cleanData);
+                            } else {
+                                batch.set(doc(collection(db, 'scadenze_pratiche')), cleanData);
+                            }
+                        });
+                        await batch.commit();
+                        alert("Database ripristinato con successo!");
+                    }
+                } catch (err) {
+                    alert("Errore nel caricamento del file: " + err.message);
+                }
+                event.target.value = "";
+            };
+            reader.readAsText(file);
+        };
+
+        // --- EXPORT & IMPORT EXCEL ---
+        window.exportToExcel = () => {
+            const headers = ["PI", "Scadenza", "Condominio_Societa", "Comune", "Indirizzo", "Attivita", "Amministratore", "Email_Amministratore"];
+            const excelHeader = "sep=;\n";
+            const rows = practices.map(p => [p.pi||"", p.deadline||"", p.entityName||"", p.municipality||"", p.address||"", p.activity||"", p.administrator||"", p.adminEmail||""]);
+            const csv = excelHeader + [headers, ...rows].map(e => e.map(String).map(v => `"${v.replaceAll('"', '""')}"`).join(";")).join("\n");
+            const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = `export_fire_${new Date().toISOString().split('T')[0]}.csv`;
+            link.click();
+        };
+
+        window.importFromExcel = async (event) => {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = async (e) => {
+                let content = e.target.result;
+                if (content.startsWith("sep=")) content = content.substring(content.indexOf("\n") + 1);
+                const lines = content.split(/\r?\n/).filter(line => line.trim() !== "");
+                if (lines.length < 2) return;
+                const firstLine = lines[0];
+                const delimiter = (firstLine.match(/;/g) || []).length >= (firstLine.match(/,/g) || []).length ? ';' : ',';
+                const parseCSVLine = (text, delim) => {
+                    const regex = new RegExp(`(?:${delim}|\\n|^)(?:"([^"]*(?:""[^"]*)*)"|([^"${delim}\\n\\r]*))`, 'g');
+                    const results = [];
+                    let match;
+                    while ((match = regex.exec(text)) !== null) {
+                        let val = match[1] !== undefined ? match[1].replace(/""/g, '"') : match[2];
+                        results.push(val ? val.trim() : "");
+                    }
+                    return results;
+                };
+                const dataRows = lines.slice(1).map(line => parseCSVLine(line, delimiter));
+                if (confirm(`Rilevate ${dataRows.length} righe. Procedere con l'aggiornamento?`)) {
+                    const batch = writeBatch(db);
+                    for (const row of dataRows) {
+                        const piCode = row[0] ? row[0].trim() : null;
+                        if (!piCode) continue;
+                        const practiceData = {
+                            pi: piCode,
+                            deadline: row[1] || "",
+                            entityName: row[2] || "",
+                            municipality: row[3] || "",
+                            address: row[4] || "",
+                            activity: row[5] || "",
+                            administrator: row[6] || "",
+                            adminEmail: row[7] || "",
+                            mailSent60: false,
+                            updatedAt: serverTimestamp()
+                        };
+                        const existing = practices.find(p => p.pi === piCode);
+                        if (existing) batch.update(doc(db, 'scadenze_pratiche', existing.id), practiceData);
+                        else batch.set(doc(collection(db, 'scadenze_pratiche')), practiceData);
+                    }
+                    await batch.commit();
+                    alert("Importazione completata!");
+                    event.target.value = ""; 
+                }
+            };
+            reader.readAsText(file);
+        };
+
+        window.openModal = () => { document.getElementById('practiceForm').reset(); document.getElementById('practiceId').value = ''; document.getElementById('modalTitle').innerText = 'Nuova Pratica'; document.getElementById('practiceModal').classList.remove('hidden'); };
+        window.closeModal = () => document.getElementById('practiceModal').classList.add('hidden');
+        window.edit = (id) => {
+            const p = practices.find(x => x.id === id);
+            document.getElementById('practiceId').value = id;
+            document.getElementById('pi').value = p.pi || '';
+            document.getElementById('deadline').value = p.deadline || '';
+            document.getElementById('entityName').value = p.entityName || '';
+            document.getElementById('activity').value = p.activity || '';
+            document.getElementById('address').value = p.address || '';
+            document.getElementById('administrator').value = p.administrator || '';
+            document.getElementById('adminEmail').value = p.adminEmail || '';
+            document.getElementById('municipality').value = p.municipality || '';
+            document.getElementById('modalTitle').innerText = 'Modifica Pratica';
+            document.getElementById('practiceModal').classList.remove('hidden');
+        };
+        window.del = async (id) => { if(confirm('Eliminare?')) await deleteDoc(doc(db, 'scadenze_pratiche', id)); };
+        document.getElementById('practiceForm').onsubmit = async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('practiceId').value;
+            const data = {
+                pi: document.getElementById('pi').value || null,
+                deadline: document.getElementById('deadline').value || null,
+                entityName: document.getElementById('entityName').value || null,
+                activity: document.getElementById('activity').value || null,
+                address: document.getElementById('address').value || null,
+                administrator: document.getElementById('administrator').value || null,
+                adminEmail: document.getElementById('adminEmail').value || null,
+                municipality: document.getElementById('municipality').value || null,
+                mailSent60: false, 
+                updatedAt: serverTimestamp()
+            };
+            if(id) await updateDoc(doc(db, 'scadenze_pratiche', id), data);
+            else await addDoc(collection(db, 'scadenze_pratiche'), data);
+            closeModal();
+        };
+        init();
     </script>
 </body>
 </html>
